@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Flight Price Prediction</title>
+  <link rel="stylesheet" href="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous">
+  <style>
+    /* Base Reset & Typography */
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f5f7fa;
+      color: #222;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; text-decoration: none; }
+
+    /* Header */
+    header {
+      background: linear-gradient(135deg, #4a90e2 0%, #50e3c2 100%);
+      color: #fff;
+      text-align: center;
+      padding: 4rem 1rem 3rem;
+      position: relative;
+      overflow: hidden;
+    }
+    header h1 {
+      font-size: 3rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      letter-spacing: 1.2px;
+      animation: fadeSlideDown 1s ease forwards;
+    }
+    header p {
+      font-size: 1.25rem;
+      opacity: 0.85;
+      margin-bottom: 2rem;
+      animation: fadeSlideDown 1s ease 0.3s forwards;
+    }
+    header .btn-primary {
+      background: #fff;
+      color: #4a90e2;
+      font-weight: 600;
+      padding: 0.85rem 2.5rem;
+      border-radius: 50px;
+      box-shadow: 0 8px 20px rgba(74,144,226,0.3);
+      font-size: 1.1rem;
+      cursor: pointer;
+      border: none;
+      transition: all 0.3s ease;
+      animation: fadeSlideDown 1s ease 0.6s forwards;
+    }
+    header .btn-primary:hover {
+      background: #3a78cc;
+      color: #fff;
+      box-shadow: 0 12px 30px rgba(58,120,204,0.6);
+      transform: translateY(-3px);
+    }
+    header::before, header::after {
+      content: "";
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(60px);
+    }
+    header::before {
+      top: -100px; left: -100px; width: 300px; height: 300px;
+      background: rgba(255,255,255,0.15);
+      animation: floatUpDown 6s ease-in-out infinite;
+    }
+    header::after {
+      bottom: -120px; right: -120px; width: 250px; height: 250px;
+      background: rgba(255,255,255,0.1);
+      filter: blur(50px);
+      animation: floatUpDown 8s ease-in-out infinite alternate;
+      animation-delay: 2s;
+    }
+
+    /* Section Container */
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+    }
+
+    /* Section Titles */
+    .section-title {
+      text-align: center;
+      margin-bottom: 2.5rem;
+      font-size: 2rem;
+      font-weight: 700;
+      color: #4a90e2;
+    }
+
+    /* Process Section */
+    .process-section {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(80,227,194,0.09);
+      margin: 3rem 0;
+      padding: 2.5rem 2rem;
+      animation: fadeInUp 1s;
+    }
+    .process-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+    .process-card {
+      background: #f5f7fa;
+      border-radius: 18px;
+      padding: 2rem 1rem;
+      box-shadow: 0 4px 18px rgba(74,144,226,0.08);
+      text-align: center;
+      transition: transform 0.3s, box-shadow 0.3s;
+      border: 2px solid transparent;
+      position: relative;
+      overflow: hidden;
+      animation: fadeInUp 1s;
+    }
+    .process-card:hover {
+      transform: translateY(-8px) scale(1.03);
+      border-color: #50e3c2;
+      box-shadow: 0 12px 32px rgba(80,227,194,0.13);
+    }
+    .process-icon {
+      font-size: 2.5rem;
+      color: #4a90e2;
+      margin-bottom: 1rem;
+    }
+    .process-card h4 {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 0.8rem;
+      color: #333;
+    }
+    .process-card p {
+      font-size: 1rem;
+      color: #666;
+      opacity: 0.92;
+      line-height: 1.5;
+    }
+
+    /* Visualizations Section */
+    .visualizations-section {
+      background: #f5f7fa;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(74,144,226,0.07);
+      margin: 3rem 0;
+      padding: 2.5rem 2rem;
+      animation: fadeInUp 1s;
+    }
+    .visual-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+    .visual-card {
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 4px 18px rgba(80,227,194,0.08);
+      text-align: center;
+      padding: 1.5rem 1rem;
+      transition: transform 0.3s, box-shadow 0.3s;
+      border: 2px solid transparent;
+      animation: fadeInUp 1s;
+    }
+    .visual-card:hover {
+      transform: translateY(-5px) scale(1.04);
+      border-color: #4a90e2;
+      box-shadow: 0 12px 32px rgba(74,144,226,0.13);
+    }
+    .visual-image {
+      font-size: 2.5rem;
+      color: #50e3c2;
+      margin-bottom: 0.8rem;
+    }
+    .visual-info h4 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #4a90e2;
+    }
+
+    /* Prediction Form Section */
+    .prediction-section {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.08);
+      padding: 2.5rem 2rem;
+      margin-bottom: 4rem;
+      animation: fadeInUp 1s;
+    }
+    .prediction-section h2 {
+      text-align: center;
+      font-weight: 700;
+      font-size: 2.25rem;
+      margin-bottom: 2rem;
+      color: #4a90e2;
+    }
+    form {
+      display: grid;
+      grid-template-columns: repeat(auto-fit,minmax(260px,1fr));
+      gap: 1.5rem;
+    }
+    label {
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+      color: #555;
+      display: block;
+    }
+    input[type=datetime-local], select {
+      width: 100%;
+      padding: 0.85rem 1rem;
+      border-radius: 12px;
+      border: 1.8px solid #ddd;
+      font-size: 1rem;
+      background-color: #fafafa;
+      color: #333;
+      transition: border-color 0.3s;
+    }
+    input[type=datetime-local]:focus, select:focus {
+      outline: none;
+      border-color: #4a90e2;
+      box-shadow: 0 0 8px rgba(74,144,226,0.3);
+      background: #fff;
+    }
+    .submit-btn {
+      grid-column: 1 / -1;
+      background: #4a90e2;
+      color: #fff;
+      font-weight: 700;
+      font-size: 1.2rem;
+      padding: 1rem 0;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0 10px 30px rgba(74,144,226,0.3);
+      transition: background 0.3s, box-shadow 0.3s, transform 0.3s;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.7rem;
+    }
+    .submit-btn:hover:not(:disabled) {
+      background: #3a78cc;
+      box-shadow: 0 14px 40px rgba(58,120,204,0.5);
+      transform: translateY(-3px);
+    }
+    .submit-btn:disabled {
+      background: #a3c0f9;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+    .prediction-result {
+      margin-top: 2rem;
+      background: #50e3c2;
+      color: #fff;
+      font-weight: 700;
+      font-size: 1.5rem;
+      padding: 1.5rem 2rem;
+      border-radius: 12px;
+      text-align: center;
+      box-shadow: 0 8px 24px rgba(80,227,194,0.4);
+      animation: fadeIn 1s;
+    }
+    label i { margin-right: 0.5rem; color: #4a90e2; }
+
+    /* Animations */
+    @keyframes fadeSlideDown {
+      0% { opacity: 0; transform: translateY(-20px);}
+      100% { opacity: 1; transform: translateY(0);}
+    }
+    @keyframes fadeInUp {
+      0% { opacity: 0; transform: translateY(30px);}
+      100% { opacity: 1; transform: translateY(0);}
+    }
+    @keyframes fadeIn { from {opacity: 0;} to {opacity: 1;} }
+    @keyframes floatUpDown {
+      0%, 100% { transform: translateY(0);}
+      50% { transform: translateY(-20px);}
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      header h1 { font-size: 2rem; }
+      .container, .process-section, .visualizations-section, .prediction-section {
+        padding: 1.2rem 0.6rem;
+      }
+      form { grid-template-columns: 1fr; }
+      .submit-btn { font-size: 1rem; padding: 0.85rem 0; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Flight Price Prediction</h1>
+  <p>AI-Powered Flight Cost Estimation</p>
+  <button class="btn-primary" onclick="document.getElementById('prediction').scrollIntoView({behavior:'smooth'})">
+    &#9992; Get Started
+  </button>
+</header>
+
+<main class="container">
+
+  <!-- Process Section -->
+  <section class="process-section">
+    <div class="section-title">Our Process</div>
+    <div class="process-grid">
+      <div class="process-card">
+        <div class="process-icon"><i class="fas fa-database"></i></div>
+        <h4>ETL Process</h4>
+        <p>CSV Files from Kaggle were loaded and merged into Python via Jupyter Notebook for comprehensive data processing.</p>
+      </div>
+      <div class="process-card">
+        <div class="process-icon"><i class="fas fa-server"></i></div>
+        <h4>Database</h4>
+        <p>The data was normalized, cleaned, and then inserted into PostgreSQL from Jupyter Notebook for optimal performance.</p>
+      </div>
+      <div class="process-card">
+        <div class="process-icon"><i class="fas fa-code"></i></div>
+        <h4>Flask API</h4>
+        <p>This tool was set up to connect the data to the site and calculate accurate flight prices using machine learning.</p>
+      </div>
+      <div class="process-card">
+        <div class="process-icon"><i class="fas fa-chart-line"></i></div>
+        <h4>Tableau</h4>
+        <p>Using Tableau, visualizations were created to provide deeper insights into the flight pricing dataset.</p>
+      </div>
+      <div class="process-card">
+        <div class="process-icon"><i class="fas fa-paint-brush"></i></div>
+        <h4>Modern Design</h4>
+        <p>Created with modern web technologies and responsive design principles for optimal user experience.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Visualizations Section -->
+  <!-- <section class="visualizations-section">
+    <div class="section-title">Data Visualizations</div>
+    <div class="visual-grid">
+      <div class="visual-card">
+        <div class="visual-image"><i class="fas fa-chart-bar"></i></div>
+        <div class="visual-info"><h4>Price Distribution Analysis</h4></div>
+      </div>
+      <div class="visual-card">
+        <div class="visual-image"><i class="fas fa-chart-pie"></i></div>
+        <div class="visual-info"><h4>Airline Market Share</h4></div>
+      </div>
+      <div class="visual-card">
+        <div class="visual-image"><i class="fas fa-chart-line"></i></div>
+        <div class="visual-info"><h4>Seasonal Price Trends</h4></div>
+      </div>
+      <div class="visual-card">
+        <div class="visual-image"><i class="fas fa-map-marked-alt"></i></div>
+        <div class="visual-info"><h4>Route Analysis</h4></div>
+      </div>
+      <div class="visual-card">
+        <div class="visual-image"><i class="fas fa-clock"></i></div>
+        <div class="visual-info"><h4>Time-based Pricing</h4></div>
+      </div>
+      <div class="visual-card">
+        <div class="visual-image"><i class="fas fa-plane"></i></div>
+        <div class="visual-info"><h4>Flight Duration Impact</h4></div>
+      </div>
+    </div>
+  </section> -->
+
+  <!-- Prediction Form Section -->
+  <section id="prediction" class="prediction-section" aria-label="Flight Price Prediction Form">
+    <h2>Predict Your Flight Price</h2>
+    <form action="/predict" method="post" id="prediction-form" novalidate>
+      <div>
+        <label for="Dep_Time"><i class="fas fa-plane-departure"></i> Departure Date & Time</label>
+        <input type="datetime-local" name="Dep_Time" id="Dep_Time" required />
+      </div>
+      <div>
+        <label for="Arrival_Time"><i class="fas fa-plane-arrival"></i> Arrival Date & Time</label>
+        <input type="datetime-local" name="Arrival_Time" id="Arrival_Time" required />
+      </div>
+      <div>
+        <label for="Source"><i class="fas fa-map-marker-alt"></i> Source City</label>
+        <select name="Source" id="Source" required>
+          <option value="" disabled selected>Select Source</option>
+          <option value="Delhi">Delhi</option>
+          <option value="Kolkata">Kolkata</option>
+          <option value="Bangalore">Bangalore</option>
+          <option value="Mumbai">Mumbai</option>
+          <option value="Chennai">Chennai</option>
+        </select>
+      </div>
+      <div>
+        <label for="Destination"><i class="fas fa-map-marker-alt"></i> Destination City</label>
+        <select name="Destination" id="Destination" required>
+          <option value="" disabled selected>Select Destination</option>
+          <option value="Cochin">Cochin</option>
+          <option value="Delhi">Delhi</option>
+          <option value="Bangalore">Bangalore</option>
+          <option value="Hyderabad">Hyderabad</option>
+          <option value="Kolkata">Kolkata</option>
+        </select>
+      </div>
+      <div>
+        <label for="stops"><i class="fas fa-exchange-alt"></i> Number of Stops</label>
+        <select name="stops" id="stops" required>
+          <option value="" disabled selected>Select Stops</option>
+          <option value="0">Non-Stop</option>
+          <option value="1">1 Stop</option>
+          <option value="2">2 Stops</option>
+          <option value="3">3 Stops</option>
+          <option value="4">4 Stops</option>
+        </select>
+      </div>
+      <div>
+        <label for="airline"><i class="fas fa-plane"></i> Preferred Airline</label>
+        <select name="airline" id="airline" required>
+          <option value="" disabled selected>Select Airline</option>
+          <option value="Jet Airways">Jet Airways</option>
+          <option value="IndiGo">IndiGo</option>
+          <option value="Air India">Air India</option>
+          <option value="Multiple carriers">Multiple carriers</option>
+          <option value="SpiceJet">SpiceJet</option>
+          <option value="Vistara">Vistara</option>
+          <option value="Air Asia">Air Asia</option>
+          <option value="GoAir">GoAir</option>
+          <option value="Multiple carriers Premium economy">Multiple carriers Premium economy</option>
+          <option value="Jet Airways Business">Jet Airways Business</option>
+          <option value="Vistara Premium economy">Vistara Premium economy</option>
+          <option value="Trujet">Trujet</option>
+        </select>
+      </div>
+      <button type="submit" class="submit-btn" id="submit-btn">
+        <i class="fas fa-search"></i> Predict Price
+      </button>
+    </form>
+
+      {% if predictions %}
+      <div class="prediction-result">
+        <i class="fas fa-rupee-sign"></i> {{ predictions }}
+      </div>
+      {% endif %}
+
+  </section>
+</main>
+
+<!-- FontAwesome CDN for icons -->
+<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+<script>
+  // Set min attribute on datetime inputs to current datetime (no past dates)
+  window.addEventListener('load', () => {
+    const depInput = document.getElementById('Dep_Time');
+    const arrInput = document.getElementById('Arrival_Time');
+    const now = new Date();
+    function formatDateTimeLocal(date) {
+      const year = date.getFullYear();
+      const month = ('0' + (date.getMonth() + 1)).slice(-2);
+      const day = ('0' + date.getDate()).slice(-2);
+      const hours = ('0' + date.getHours()).slice(-2);
+      const minutes = ('0' + date.getMinutes()).slice(-2);
+      return `${year}-${month}-${day}T${hours}:${minutes}`;
+    }
+    const minDateTime = formatDateTimeLocal(now);
+    depInput.min = minDateTime;
+    arrInput.min = minDateTime;
+  });
+
+  // Show loading animation on submit
+  document.getElementById('prediction-form').addEventListener('submit', function(e) {
+    const submitBtn = document.getElementById('submit-btn');
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="spinner" aria-hidden="true"></span> Predicting...';
+  });
+
+  // Simple spinner style
+  const style = document.createElement('style');
+  style.innerHTML = `
+    .spinner {
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      border: 3px solid rgba(255,255,255,0.6);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      vertical-align: middle;
+      margin-right: 8px;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  `;
+  document.head.appendChild(style);
+</script>
+</body>
+</html>
